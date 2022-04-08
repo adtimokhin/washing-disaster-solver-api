@@ -12,8 +12,8 @@ module.exports.getLocationById = (req, res, next) => {
       res.status(response.statusCode).json(response);
     })
     .catch((err) => {
-      console.log("err :>> ", err);
-      next(); // todo: make a special route that handles errors.
+      err.message = "Could not find the location by id.";
+      next(err);
     });
 };
 
@@ -27,7 +27,7 @@ module.exports.postLocation = (req, res, next) => {
       res.status(response.statusCode).json(response);
     })
     .catch((err) => {
-      console.log("err :>> ", err);
+      next(err);
     });
 };
 
@@ -39,11 +39,11 @@ module.exports.patchLocation = (req, res, next) => {
 
   LocationService.updateLocation(location)
     .then((_) => {
-      const response = new Response(204, "Location information was updated");
+      const response = new Response(204);
       res.status(response.statusCode).json(response);
     })
     .catch((err) => {
-      console.log("err :>> ", err);
+      next(err);
     });
 };
 
@@ -52,10 +52,10 @@ module.exports.deleteLocationById = (req, res, next) => {
 
   LocationService.deleteLocationById(locationId)
     .then((_) => {
-      const response = new Response(204, "Location was deleted successfully.");
+      const response = new Response(204);
       res.status(response.statusCode).json(response);
     })
     .catch((err) => {
-      console.log("err :>> ", err);
+      next(err);
     });
 };

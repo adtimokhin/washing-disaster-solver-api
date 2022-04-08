@@ -1,7 +1,8 @@
 const fs = require("fs");
 const ini = require("ini");
 
-module.exports.generateJWTSecret = (length = 35) => { // code by https://stackoverflow.com/users/164392/csharptest-net
+module.exports.generateJWTSecret = (length = 35) => {
+  // code by https://stackoverflow.com/users/164392/csharptest-net
   var token = "";
   var characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -11,4 +12,9 @@ module.exports.generateJWTSecret = (length = 35) => { // code by https://stackov
   }
 
   return token;
+};
+
+module.exports.getJWTSecret = () => {
+  const config = ini.parse(fs.readFileSync("./properties/config.ini", "utf-8")); // opening connection with a file that constains configuartion information.
+  return config.jwt.secret;
 };
