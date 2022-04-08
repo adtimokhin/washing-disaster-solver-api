@@ -10,6 +10,8 @@ const generateToken = require("../utils/token-generator.js").generateToken;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
+const sendEmail = require("../utils/email/email-sender.js");
+
 const fs = require("fs");
 const ini = require("ini"); // library to work with .ini files link: https://github.com/npm/ini
 
@@ -33,13 +35,23 @@ module.exports.postSignUp = (req, res, next) => {
   const password = req.body.password;
   const name = req.body.name;
 
+  let emailVerificationToken;
+
   bcrypt
     .hash(password, 12)
     .then((encryptedPassword) => {
       const user = new User(email, encryptedPassword, name);
+      emailVerificationToken = user.emailVerification.tokenValue;
       return UserService.saveUser(user);
     })
     .then((result) => {
+      sendEmail({
+        to: email,
+        subject: "Email Verification",
+        text: `Hello, I am very happy that you have registered for our app. Here is the link to verify your email:
+        \nhttp://localhost:8080/api/v1/user/verified/${emailVerificationToken}`,
+      });
+
       const response = new Response(201, "New user was added to the database", {
         user: { _id: result.insertedId },
       });
@@ -146,6 +158,7 @@ module.exports.putPassswordUpdateVerificationToken = (req, res, next) => {
   checkForValidationErrors(req, "Email must be provided.");
 
   const email = req.body.email;
+  let passwordToken;
 
   UserService.findUserByEmail(email)
     .then((user) => {
@@ -167,7 +180,7 @@ module.exports.putPassswordUpdateVerificationToken = (req, res, next) => {
       }
 
       // assigning a new token.
-      const passwordToken = generateToken();
+      passwordToken = generateToken();
       user.passwordToken = new UserToken(passwordToken);
 
       return UserService.updateUser(user);
@@ -178,7 +191,12 @@ module.exports.putPassswordUpdateVerificationToken = (req, res, next) => {
         "New password verification token was setted."
       );
 
-      // todo: add sending email with verification token
+      sendEmail({
+        to: email,
+        subject: "Password Reset.",
+        text: `Here is an email to change your password:
+        \nhttp://localhost:8080/api/v1/password/${passwordToken}`,
+      });
 
       res.status(response.statusCode).json(response);
     })
