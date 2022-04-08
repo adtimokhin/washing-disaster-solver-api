@@ -21,13 +21,13 @@ module.exports.updateLocation = (location) => {
   }
   return getDb()
     .collection("locations")
-    .updateOne({ _id: location._id }, { $set: location });
+    .updateOne({ _id: new ObjectId(location._id) }, { $set: location });
 };
 
 // Deletes location from the databse if it exists
-module.exports.deleteLocation = (location) => {
-  if (!location._id) {
-    throw new Error("Undefined location. Could not resolve its id.");
-  }
-  return getDb().collection("locations").deleteOne({ _id: location._id });
+module.exports.deleteLocationById = (locationId) => {
+  // locationId is a String, not ObjectId object
+  return getDb()
+    .collection("locations")
+    .deleteOne({ _id: new ObjectId(locationId) });
 };

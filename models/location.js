@@ -1,3 +1,4 @@
+const ObjectId = require("mongodb").ObjectId;
 
 class Location {
     constructor(address, id) {
