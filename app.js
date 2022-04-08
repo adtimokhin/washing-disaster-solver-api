@@ -31,7 +31,7 @@ app.use((req, res, next) => {
 });
 
 // Setting the routes
-app.use(config.default.apiRoute, locationRoute);
+app.use(config.default.apiRoute, isAuth, locationRoute);
 
 app.use((err, req, res, next) => {
   console.log("err :>> ", err);
