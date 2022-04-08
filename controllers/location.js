@@ -2,20 +2,7 @@ const LocationService = require("../services/location.js");
 const Location = require("../models/location.js");
 const Response = require("../utils/response.js");
 
-const { validationResult } = require("express-validator");
-
-// Checks whether there are errors detected by the middleware. If yes, this method will also throw an error.
-const checkForValidationErrors = (req, errorMessage) => {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty) {
-    const err = new Error(errorMessage);
-    err.statusCode = 422;
-    err.data = errors.array();
-
-    throw err;
-  }
-};
+const checkForValidationErrors = require("../utils/validtion-success-check.js");
 
 module.exports.getLocationById = (req, res, next) => {
   checkForValidationErrors(req, "Require an id.");
