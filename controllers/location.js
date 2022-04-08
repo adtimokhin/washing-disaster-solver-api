@@ -60,7 +60,7 @@ module.exports.deleteLocationById = (req, res, next) => {
   // todo: Add roles. Make it so that only owners of the locations can update and delete them
   checkForValidationErrors(req, "Require an id.");
 
-  const locationId = req.params.locationId; // todo: add a middleware that checks for this things.
+  const locationId = req.params.locationId;
 
   LocationService.deleteLocationById(locationId)
     .then((_) => {

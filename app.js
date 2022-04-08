@@ -11,6 +11,7 @@ const isAuth = require("./middlewares/is-auth.js").isAuth;
 // Routes
 const locationRoute = require("./routes/location.js");
 const userRoute = require("./routes/user.js");
+const machineRoute = require("./routes/machine.js");
 
 // Creating a new JWT secret to use before the launch of the application.
 const config = ini.parse(fs.readFileSync("./properties/config.ini", "utf-8")); // opening connection with a file that constains configuartion information.
@@ -33,8 +34,8 @@ app.use((req, res, next) => {
 
 // Setting the routes
 app.use(config.default.apiRoute, userRoute);
+app.use(config.default.apiRoute, machineRoute); // FIXME: Untested set of routes!!!!
 app.use(config.default.apiRoute, isAuth, locationRoute);
-
 
 app.use((err, req, res, next) => {
   console.log("err :>> ", err);
