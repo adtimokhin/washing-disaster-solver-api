@@ -21,7 +21,7 @@ module.exports.deleteMachineById = (machineId) => {
 module.exports.findMachinesByLocationId = (locationId) => {
   return getDb()
     .collection("machines")
-    .find({ locationId: new ObjectId(locationId) })
+    .find({ locationId: locationId })
     .toArray();
 };
 
@@ -32,5 +32,5 @@ module.exports.updateMachine = (machine) => {
   }
   return getDb()
     .collection("machines")
-    .updateOne({ _id: new ObjectId(machine._id) }, { $set: machine });
+    .updateOne({ _id: machine._id }, { $set: machine });
 };

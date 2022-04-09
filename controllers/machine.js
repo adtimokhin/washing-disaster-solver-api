@@ -18,9 +18,14 @@ module.exports.postMachine = (req, res, next) => {
 
   let machine;
   LocationService.findLocationById(locationId)
-    .then((_) => {
-      machine = new Machine(type, name, locationId, timeStart, timeEnd);
-      MachineService.saveMachine(machine);
+    .then((location) => {
+      if (!location) {
+        const err = new Error("No location was found using the id passed");
+        err.statusCode = 422;
+        throw err;
+      }
+      machine = new Machine(type, name, timeStart, timeEnd, null, locationId);
+      return MachineService.saveMachine(machine);
     })
     .then((result) => {
       const response = new Response(201, "Machine was added to the database", {
@@ -56,8 +61,7 @@ module.exports.getMachineById = (req, res, next) => {
 module.exports.getMachinesByLocationId = (req, res, next) => {
   checkForValidationErrors(req, "Location id must be set.");
 
-  const locationId = req.param.locationId;
-
+  const locationId = req.params.locationId;
   MachineService.findMachinesByLocationId(locationId)
     .then((machines) => {
       const response = new Response(200, "Machines were found", {
@@ -86,30 +90,82 @@ module.exports.deleteMachineById = (req, res, next) => {
     });
 };
 
+// Method will take in the object, the corresponding field and it will throw a 422 error if the new value matches the one stored.
+function updateField(object, propertyName, newValue) {
+  if (newValue) {
+    if (object[propertyName] === newValue) {
+      const err = new Error(
+        `Updated value for field of ${propertyName} matches the one stored in the database.`
+      );
+      err.statusCode = 422;
+      throw err;
+    }
+
+    object[propertyName] = newValue;
+  }
+}
+
 // Updates machie by its id.
 module.exports.patchMachine = (req, res, next) => {
   checkForValidationErrors(req, "Invalid input.");
 
-  const machineId = req.body.machineId;
-  const type = req.body.type;
-  const name = req.body.name;
-  const locationId = req.body.locationId;
-  const timeStart = req.body.timeStart;
-  const timeEnd = req.body.timeEnd;
+  MachineService.findMachineById(req.body.machineId)
+    .then((machine) => {
+      if (!machine) {
+        const err = new Error("No machine was found using this id.");
+        err.statusCode = 422;
+        throw err;
+      }
 
-  const machine = new Machine(
-    type,
-    name,
-    locationId,
-    timeStart,
-    timeEnd,
-    machineId
-  );
+      if (req.body.type) {
+        if (["washing", "drying"].includes(req.body.type)) {
+          machine.type = req.body.type;
+        } else {
+          const err = new Error(
+            "Type of machine should be either washing or drying."
+          );
+          err.statusCode = 422;
 
-  MachineService.updateMachine(machine)
-    .then((_) => {
-      const response = new Response(204);
-      res.status(response.statusCode).json(response);
+          throw err;
+        }
+      }
+
+      updateField(machine, "name", req.body.name);
+      updateField(machine, "timeStart", req.body.timeStart);
+      updateField(machine, "timeEnd", req.body.timeEnd);
+      updateField(machine, "locationId", req.body.locationId);
+
+      if (req.body.locationId) {
+
+        LocationService.findLocationById(machine.locationId)
+          .then((location) => {
+            if (!location) {
+              const err = new Error(
+                "No location was found using the id passed"
+              );
+              err.statusCode = 422;
+              throw err;
+            }
+
+            return MachineService.updateMachine(machine);
+          })
+          .then((_) => {
+            const response = new Response(204);
+            res.status(response.statusCode).json(response);
+          })
+          .catch((err) => {
+            next(err);
+          });
+      } else {
+        MachineService.updateMachine(machine)
+          .then((_) => {
+            const response = new Response(204);
+            res.status(response.statusCode).json(response);
+          })
+          .catch((err) => {
+            next(err);
+          });
+      }
     })
     .catch((err) => {
       next(err);

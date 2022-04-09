@@ -6,6 +6,7 @@ const { body, param } = require("express-validator");
 const controller = require("../controllers/machine.js");
 
 // all of the routes that are related to location.
+
 // Finds Machine by its id.
 router.get(
   "/machine/:machineId",
@@ -35,8 +36,15 @@ router.post(
       .isEmpty()
       .withMessage("Location Id cannot be empty"),
 
-    body("timeStart").isDate(),
-    body("timeEnd").isDate(),
+    // todo: add a check for dates.
+    body("timeEnd")
+      .not()
+      .isEmpty()
+      .withMessage("This field should not be empty"),
+    body("timeStart")
+      .not()
+      .isEmpty()
+      .withMessage("This field should not be empty"),
   ],
   controller.postMachine
 );
@@ -57,22 +65,8 @@ router.get(
 router.patch(
   "/machine",
   [
-    body("machieId").not().isEmpty().withMessage("Id cannot be empty."),
-    body("type")
-      .isIn(["washing", "drying"])
-      .withMessage(
-        'Currently two machine types are supported: "washing" and "drying"'
-      ),
-
-    body("name").not().isEmpty().withMessage("Name cannot be empty"),
-
-    body("locationId")
-      .not()
-      .isEmpty()
-      .withMessage("Location Id cannot be empty"),
-
-    body("timeStart").isDate(),
-    body("timeEnd").isDate(),
+    body("machineId").not().isEmpty().withMessage("Id cannot be empty."),
+    // todo: add a check for dates.
   ],
   controller.patchMachine
 );
@@ -80,7 +74,7 @@ router.patch(
 // Deletes machine, finding it by Id passed as a string.
 router.delete(
   "/machine/:machineId",
-  [body("machieId").not().isEmpty().withMessage("Id cannot be empty.")],
+  [param("machineId").not().isEmpty().withMessage("Id cannot be empty.")],
   controller.deleteMachineById
 );
 
