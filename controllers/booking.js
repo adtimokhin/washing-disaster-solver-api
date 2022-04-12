@@ -19,12 +19,12 @@ module.exports.getBookingsByMachineIdAndStatus = (req, res, next) => {
 
   BookingService.findBookingsByMachineIdAndStatus(machineId, status)
     .then((bookings) => {
-      const data = [];
+      let data = [];
       if (bookings) {
         data = [...bookings];
       }
       const response = new Response(200, "Bookings were found", {
-        machines: data,
+        bookings: data,
       });
       res.status(response.statusCode).json(response);
     })
@@ -39,13 +39,13 @@ module.exports.getBookingsByMachineid = (req, res, next) => {
   const machineId = req.params.machineId;
   BookingService.findBookingsByMachineId(machineId)
     .then((bookings) => {
-      const data = [];
+      let data = [];
       if (bookings) {
         // TODO: Before sending data update statuses.
         data = [...bookings];
       }
       const response = new Response(200, "Bookings were found", {
-        machines: data,
+        bookings: data,
       });
       res.status(response.statusCode).json(response);
     })
@@ -70,6 +70,7 @@ module.exports.postBooking = (req, res, next) => {
 
   const userId = jwtSecurity(token).userId;
 
+  console.log("userId :>> ", userId);
   let booking;
 
   MachineService.findMachineById(machineId)
@@ -81,14 +82,17 @@ module.exports.postBooking = (req, res, next) => {
       }
 
       booking = new Booking(machineId, timeStart, timeEnd, status, userId);
-      if (!bookingChecks.isValidTimeSlot(booking)) {
+      if (bookingChecks.isValidTimeSlot(booking)) {
         booking.status = bookingStatus.at(1); // setting the status to waiting for execution but valid
         return BookingService.saveBooking(booking);
       }
+      const err = new Error("Invalid time slot");
+      err.statusCode = 422;
+      throw err;
     })
     .then((result) => {
       const response = new Response(201, "Booking was added to the database", {
-        machine: { _id: result.insertedId, ...booking },
+        booking: { _id: result.insertedId, ...booking },
       });
       res.status(response.statusCode).json(response);
     })

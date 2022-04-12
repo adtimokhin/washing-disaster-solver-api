@@ -65,7 +65,7 @@ module.exports.getMachinesByLocationId = (req, res, next) => {
   const locationId = req.params.locationId;
   MachineService.findMachinesByLocationId(locationId)
     .then((machines) => {
-      const data = [];
+      let data = [];
       if (machines) {
         data = [...machines];
       }
