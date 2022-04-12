@@ -118,13 +118,13 @@ module.exports.patchBooking = (req, res, next) => {
 
       const token = req.get("Authorization").split(" ")[1];
 
-      if (booking.userId !== jwtSecurity(token)) {
+      if (booking.userId !== jwtSecurity(token).userId) {
         const err = new Error("You are not the owner of this booking");
         err.status = 403;
         throw err;
       }
 
-      if (booking.status === bookingStatus[-1]) {
+      if (booking.status === bookingStatus.at(-1)) {
         const err = new Error(
           "Booking cannot be moddified - it has been cancelled."
         );
@@ -146,8 +146,8 @@ module.exports.patchBooking = (req, res, next) => {
       }
       const status = req.body.status;
       if (status) {
-        if (status === bookingStatus[-1]) {
-          booking.type = status;
+        if (bookingStatus.at(-1) == status) {
+          booking.status = status;
         } else {
           const err = new Error(
             "Booking status can only be updated to cancelled"

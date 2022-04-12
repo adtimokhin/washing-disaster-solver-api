@@ -50,9 +50,9 @@ router.patch(
 );
 
 router.delete(
-  "/booking",
+  "/booking/:bookingId",
   [param("bookingId").not().isEmpty().withMessage("BookingId cannot be empty")],
-  controller.patchBooking
+  controller.deleteBooking
 );
 
 module.exports = router;
