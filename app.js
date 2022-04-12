@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 
 // Setting the routes
 app.use(config.default.apiRoute, userRoute);
-app.use(config.default.apiRoute, machineRoute); // FIXME: Untested set of routes!!!!
+app.use(config.default.apiRoute, isAuth, machineRoute);
 app.use(config.default.apiRoute, isAuth, locationRoute);
 
 app.use((err, req, res, next) => {
@@ -47,5 +47,5 @@ app.use((err, req, res, next) => {
 
 // Connecting to the database and then launching the application.
 database.mongoConnect(() => {
-  app.listen(config.default.port);
+  app.listen(process.env.PORT || 8080);
 });
