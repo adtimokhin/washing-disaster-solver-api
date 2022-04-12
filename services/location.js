@@ -1,6 +1,5 @@
 const ObjectId = require("mongodb").ObjectId;
 const getDb = require("../utils/databse.js").getDb;
-const Location = require("../models/location.js");
 
 // Saves location object into the database
 module.exports.saveLocation = (location) => {

@@ -9,9 +9,10 @@ const database = require("./utils/databse.js");
 const isAuth = require("./middlewares/is-auth.js").isAuth;
 
 // Routes
-const locationRoute = require("./routes/location.js");
-const userRoute = require("./routes/user.js");
-const machineRoute = require("./routes/machine.js");
+const locationRouter = require("./routes/location.js");
+const userRouter = require("./routes/user.js");
+const machineRouter = require("./routes/machine.js");
+const bookingRouter = require("./routes/booking.js");
 
 // Creating a new JWT secret to use before the launch of the application.
 const config = ini.parse(fs.readFileSync("./properties/config.ini", "utf-8")); // opening connection with a file that constains configuartion information.
@@ -33,9 +34,10 @@ app.use((req, res, next) => {
 });
 
 // Setting the routes
-app.use(config.default.apiRoute, userRoute);
-app.use(config.default.apiRoute, isAuth, machineRoute);
-app.use(config.default.apiRoute, isAuth, locationRoute);
+app.use(config.default.apiRoute, userRouter);
+app.use(config.default.apiRoute, isAuth, machineRouter);
+app.use(config.default.apiRoute, isAuth, locationRouter);
+app.use(config.default.apiRoute, isAuth, bookingRouter);
 
 app.use((err, req, res, next) => {
   console.log("err :>> ", err);

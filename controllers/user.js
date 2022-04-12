@@ -64,7 +64,7 @@ module.exports.postSignUp = (req, res, next) => {
 
 // Returns a JWT token if the user is permitted to log in to the application.
 module.exports.getLogin = (req, res, next) => {
-  checkForValidationErrors(req, "Invalid data is inputted.");
+  checkForValidationErrors(req);
 
   const email = req.body.email;
   const password = req.body.password;
@@ -99,13 +99,11 @@ module.exports.getLogin = (req, res, next) => {
       // return to the user a JWT token if validations have been successful.
       const token = jwt.sign(
         {
-          userid: fetchedUser._id,
+          userId: fetchedUser._id,
         },
         getJWTSecret(),
         { expiresIn: "1h" }
       );
-
-      // todo: add sending email with verification token
 
       const response = new Response(200, "User was verified", {
         token: token,
@@ -121,7 +119,7 @@ module.exports.getLogin = (req, res, next) => {
 
 // This method will update user's verification status (remove the correcsponding field form the object) if the email token passed matches the one that was setted when the userr was added to the database
 module.exports.putVerificationStatus = (req, res, next) => {
-  checkForValidationErrors(req, "Invalid data is inputted.");
+  checkForValidationErrors(req);
 
   const token = req.params.token;
 
@@ -207,7 +205,7 @@ module.exports.putPassswordUpdateVerificationToken = (req, res, next) => {
 
 // This method will update user's password.
 module.exports.putPassswordUpdate = (req, res, next) => {
-  checkForValidationErrors(req, "Invalid data is inputted.");
+  checkForValidationErrors(req);
 
   const token = req.params.token;
   const newPassword = req.body.password;

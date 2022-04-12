@@ -1,14 +1,15 @@
 const MachineService = require("../services/machine.js");
-const Machine = require("../models/machine.js");
+const Machine = require("../models/machine.js").Machine;
+const machineType = require("../models/machine.js").type;
 const Response = require("../utils/response.js");
-
+const updateField = require("../utils/update-field.js");
 const LocationService = require("../services/location.js");
 
 const checkForValidationErrors = require("../utils/validtion-success-check.js");
 
 // Adds a new machine to the system. Also checks whether the locationId is identifying an existing Location.
 module.exports.postMachine = (req, res, next) => {
-  checkForValidationErrors(req, "Cannot parse input.");
+  checkForValidationErrors(req);
 
   const type = req.body.type;
   const name = req.body.name;
@@ -40,7 +41,7 @@ module.exports.postMachine = (req, res, next) => {
 
 // Finds the machine by Id.
 module.exports.getMachineById = (req, res, next) => {
-  checkForValidationErrors(req, "Cannot parse input.");
+  checkForValidationErrors(req);
 
   const machineId = req.param.machineId;
 
@@ -64,8 +65,12 @@ module.exports.getMachinesByLocationId = (req, res, next) => {
   const locationId = req.params.locationId;
   MachineService.findMachinesByLocationId(locationId)
     .then((machines) => {
+      const data = [];
+      if (machines) {
+        data = [...machines];
+      }
       const response = new Response(200, "Machines were found", {
-        machines: [...machines],
+        machines: data,
       });
       res.status(response.statusCode).json(response);
     })
@@ -90,24 +95,9 @@ module.exports.deleteMachineById = (req, res, next) => {
     });
 };
 
-// Method will take in the object, the corresponding field and it will throw a 422 error if the new value matches the one stored.
-function updateField(object, propertyName, newValue) {
-  if (newValue) {
-    if (object[propertyName] === newValue) {
-      const err = new Error(
-        `Updated value for field of ${propertyName} matches the one stored in the database.`
-      );
-      err.statusCode = 422;
-      throw err;
-    }
-
-    object[propertyName] = newValue;
-  }
-}
-
 // Updates machie by its id.
 module.exports.patchMachine = (req, res, next) => {
-  checkForValidationErrors(req, "Invalid input.");
+  checkForValidationErrors(req);
 
   MachineService.findMachineById(req.body.machineId)
     .then((machine) => {
@@ -118,11 +108,11 @@ module.exports.patchMachine = (req, res, next) => {
       }
 
       if (req.body.type) {
-        if (["washing", "drying"].includes(req.body.type)) {
+        if (machineType.includes(req.body.type)) {
           machine.type = req.body.type;
         } else {
           const err = new Error(
-            "Type of machine should be either washing or drying."
+            `Type of machine should be one of the following: ${machineType} `
           );
           err.statusCode = 422;
 
@@ -136,7 +126,6 @@ module.exports.patchMachine = (req, res, next) => {
       updateField(machine, "locationId", req.body.locationId);
 
       if (req.body.locationId) {
-
         LocationService.findLocationById(machine.locationId)
           .then((location) => {
             if (!location) {

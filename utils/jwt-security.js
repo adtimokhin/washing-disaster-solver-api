@@ -1,5 +1,6 @@
 const fs = require("fs");
 const ini = require("ini");
+const jwtDecode = require("jwt-decode");
 
 module.exports.generateJWTSecret = (length = 35) => {
   // code by https://stackoverflow.com/users/164392/csharptest-net
@@ -17,4 +18,8 @@ module.exports.generateJWTSecret = (length = 35) => {
 module.exports.getJWTSecret = () => {
   const config = ini.parse(fs.readFileSync("./properties/config.ini", "utf-8")); // opening connection with a file that constains configuartion information.
   return config.jwt.secret;
+};
+
+module.exports.getJWTData = (token) => {
+  return jwtDecode(token);
 };

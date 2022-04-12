@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
+const machineType = require("../models/machine.js").type;
+
 const { body, param } = require("express-validator");
 
 const controller = require("../controllers/machine.js");
@@ -24,9 +26,9 @@ router.post(
   "/machine",
   [
     body("type")
-      .isIn(["washing", "drying"])
+      .isIn(machineType)
       .withMessage(
-        'Currently two machine types are supported: "washing" and "drying"'
+        `Currently two machine types are supported: ${machineType}`
       ),
 
     body("name").not().isEmpty().withMessage("Name cannot be empty"),

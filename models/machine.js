@@ -1,5 +1,7 @@
 const ObjectId = require("mongodb").ObjectId;
 
+const type = ["washing", "drying"];
+
 class Machine {
   constructor(type, name, timeStart, timeEnd, id, locationId) {
     this.type = type;
@@ -11,4 +13,5 @@ class Machine {
   }
 }
 
-module.exports = Machine;
+module.exports.Machine = Machine;
+module.exports.type = type;

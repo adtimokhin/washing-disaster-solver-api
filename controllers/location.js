@@ -22,7 +22,7 @@ module.exports.getLocationById = (req, res, next) => {
 };
 
 module.exports.postLocation = (req, res, next) => {
-  checkForValidationErrors(req, "Cannot parse input.");
+  checkForValidationErrors(req);
 
   const address = req.body.address; // todo: add middleware functions that check the passed input.
   LocationService.saveLocation(new Location(address))
@@ -39,7 +39,7 @@ module.exports.postLocation = (req, res, next) => {
 
 module.exports.patchLocation = (req, res, next) => {
   // todo: Add roles. Make it so that only owners of the locations can update and delete them
-  checkForValidationErrors(req, "Invalid input.");
+  checkForValidationErrors(req);
 
   const locationId = req.body._id;
   const address = req.body.address;

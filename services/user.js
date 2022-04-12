@@ -1,5 +1,4 @@
 const ObjectId = require("mongodb").ObjectId;
-const User = require("../models/user.js").User;
 const getDb = require("../utils/databse").getDb;
 
 module.exports.saveUser = (user) => {

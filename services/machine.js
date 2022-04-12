@@ -1,4 +1,3 @@
-const Machine = require("../models/machine.js");
 const ObjectId = require("mongodb").ObjectId;
 const getDb = require("../utils/databse.js").getDb;
 
